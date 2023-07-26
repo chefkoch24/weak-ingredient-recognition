@@ -1,3 +1,6 @@
-/data
+data/*
 .env
-/logs
+logs/*
+.idea
+/notebooks/.ipynb_checkpoints
+results/*
