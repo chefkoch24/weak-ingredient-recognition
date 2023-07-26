@@ -176,6 +176,18 @@ class TokenClassificationModel(pl.LightningModule):
         batch['loss'] = loss
         return batch
 
+    def test_step(self, batch, batch_idx, **kwargs):
+        input_ids = batch['input_ids']
+        attention_mask = batch['attention_mask']
+        labels = batch['ner_labels']
+        loss, logits = self.forward(input_ids, attention_mask, labels)
+        pred = torch.argmax(logits, dim=-1)
+        batch['token_pred'] = pred
+        batch['loss'] = loss
+        metrics = self.metrics.token_classification(batch)
+        self.log_dict(metrics, on_epoch=True)
+        return metrics
+
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
         #optimizer = Adafactor(self.model.parameters(), lr=None, relative_step=True, warmup_init=True)
